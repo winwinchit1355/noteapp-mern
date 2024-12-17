@@ -7,15 +7,19 @@ import { validateEmail } from '../../utils/helper'
 const Login = () => {
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
-    const [error,setError] = useState(null);
+    const [error,setError] = useState({});
 
     const handleLogin = (e) =>{
         e.preventDefault();
-        setError(null);
+        setError({});
+        const errors={};
         if(!validateEmail(email)){
-            setError("Please enter a valid email address.");
-            return;
+            errors.email = "Please enter a valid email address.";
         }
+        if(!password){
+            errors.password = "Please enter your password.";
+        }
+        setError(errors);
     }
   return (
     <>
@@ -29,11 +33,12 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     />
+                    {error.email && <p className='text-danger text-xs pb-1'>{error.email}</p>}
                     <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     />
-                    {error && <p className='text-danger text-xs pb-1'>{error}</p>}
+                    {error.password && <p className='text-danger text-xs pb-1'>{error.password}</p>}
                     <button type='submit' className='btn-primary'>
                         Login
                     </button>
