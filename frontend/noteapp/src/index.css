@@ -21,4 +21,7 @@
   .btn-primary{
     @apply w-full text-sm bg-primary text-white rounded my-1 p-2 hover:bg-blue-700;
   }
+  .icon-button{
+    @apply text-xl text-slate-300 cursor-pointer hover:text-primary;
+  }
 }
