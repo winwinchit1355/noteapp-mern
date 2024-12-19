@@ -9,9 +9,17 @@ const Home = () => {
   const [openEditModal, setOpenEditModal] = useState({
     isShown: false,
     type: "add",
-    date: null,
+    data: null,
   });
   const content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+  const handleOnClose = () => {
+    setOpenEditModal({
+      isShown: false,
+      type: "add",
+      data: null,
+    });
+  }
   return (
     <>
       <Navbar />
@@ -58,26 +66,22 @@ const Home = () => {
       
       <Modal
         isOpen={openEditModal.isShown}
+        ariaHideApp={false}
         onAfterOpen={()=>{}}
         onRequestClose={() => {}}
         style={{overlay:{
           backgroundColor: 'rgba(0, 0, 0, 0.2)'
         }}}
         contentLabel="Example Modal"
-        className=""
+        className="w-96 md:w-[40%] max-h-3/4 overflow-auto bg-white rounded-md mx-auto mt-14 p-5 "
       >
-        <h2>Hello</h2>
-        <button onClick={()=>{}}>close</button>
-        <div>I am a modal</div>
-        <form>
-          <input />
-          <button>tab navigation</button>
-          <button>stays</button>
-          <button>inside</button>
-          <button>the modal</button>
-        </form>
+        <AddEditNote
+        onClose={handleOnClose}
+        type={openEditModal.type}
+        noteData={openEditModal.data}
+        />
+       
       </Modal>
-      <AddEditNote />
     </>
   )
 }
