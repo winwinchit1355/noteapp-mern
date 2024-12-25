@@ -161,7 +161,7 @@ app.put('/edit-note/:noteId',authenticateToken,async (req,res) =>{
         title && (note.title = title);
         content && (note.content = content);
         tags && (note.tags = tags);
-        isPinned && (note.isPinned = isPinned);
+        note.isPinned = isPinned; //boolean
         await note.save();
         return res.status(200).json({
             error:false,
@@ -194,6 +194,37 @@ app.delete('/delete-note/:noteId',authenticateToken,async (req,res) =>{
         return res.status(200).json({
             error:false,
             message:"Note deleted successfully" 
+        });
+    }catch(err){
+        return res.status(500).json({
+            error:true,
+            message:err.message
+        });
+    }
+});
+
+//update isPinned
+app.put('/update-note-pin/:noteId',authenticateToken,async (req,res) =>{
+    const noteId = req.params.noteId;
+    const {isPinned} = req.body;
+    const {user} = req.user;
+    try{
+        const note = await Note.findOne({   
+            _id:noteId,
+            userId:user._id
+        });     
+        if(!note){
+            return res.status(404).json({
+                error:true,
+                message:"Note not found"
+            });
+        }
+       note.isPinned = isPinned;
+        await note.save();
+        return res.status(200).json({
+            error:false,
+            note,
+            message:"Update note pin successfully"
         });
     }catch(err){
         return res.status(500).json({
