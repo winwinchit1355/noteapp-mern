@@ -58,6 +58,58 @@ app.post('/login',async (req,res) =>{
     }
 });
 
+app.get('/user',authenticateToken,async (req,res) =>{
+    const {user} = req.user;
+    if(!user){
+        return res.status(404).json({
+            error:true,
+            message:"Something went wrong"
+        });
+    }
+    return res.status(200).json({
+        error:false,
+        user,
+        message:"Get user successfully"
+    });
+});
+
+app.get('/user/:userId',authenticateToken,async (req,res) =>{
+    const userId = req.params.userId;
+    const {user} = req.user;
+    
+    const findUser = await User.findOne({
+        _id: userId
+    });
+    return res.status(200).json({
+        error:false,
+        user:findUser,
+        message:"Get user successfully"
+    });
+});
+
+app.get('/get-users',authenticateToken,async (req,res) =>{
+    const userId = req.params.userId;
+    const {user} = req.user;
+    
+    try{
+        const users = await User
+            .find()
+            .sort({
+                fullName:1,
+            });
+        return res.status(200).json({
+            error:false,
+            users,
+            message: "Users fetched successfully"
+        });
+    }catch(err){
+        return res.status(500).json({
+            error:true,
+            message:err.message
+        });
+    }
+});
+
 app.post('/create-account',async (req,res) =>{
     const {fullName,password,email,createdOn} = req.body;
     if(!fullName){
