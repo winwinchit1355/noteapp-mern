@@ -1,9 +1,11 @@
 import { IoMdAdd } from "react-icons/io";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import NoteCard from '../../components/Cards/NoteCard'
 import AddEditNote from "./AddEditNotes";
 import Modal from 'react-modal';
+import { useNavigate } from "react-router-dom";
+import axiosIntance from "../../utils/axiosInstance";
 
 const Home = () => {
   const [openEditModal, setOpenEditModal] = useState({
@@ -11,6 +13,49 @@ const Home = () => {
     type: "add",
     data: null,
   });
+  const [userInfo,setUserInfo] = useState(null);
+  const navigate = useNavigate();
+  //get user info api
+  const getUserInfo = async () => { 
+    try{
+      const response = await axiosIntance.get('/user');
+      if(response.data && response.data.user)
+      {
+          setUserInfo(response.data.user);
+      }
+    }catch(e){
+      if(e.response.status === 401){
+          localStorage.clear();
+          navigate('/login');
+      }
+    }
+  }
+  const getNotes = async () => {
+    try {
+      const response = await axiosIntance.get('/get-notes');
+      if(response.data && response.data.notes)
+      {
+          console.log(response.data);
+      }
+    } catch (e) {
+      console.log(e);
+      if(e.response && e.response.data && e.response.data.message){
+          
+      }else{
+          
+      }
+    }
+  }
+
+  useEffect(()=>{
+    const token = localStorage.getItem('token');
+    if(!token){
+      navigate('/login');
+    }
+    //api call to get user
+    getUserInfo();
+  },[]);
+
   const content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
   const handleOnClose = () => {
@@ -22,7 +67,7 @@ const Home = () => {
   }
   return (
     <>
-      <Navbar />
+      <Navbar userInfo={userInfo} />
       <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
         <div className="relative bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform transition duration-500 hover:scale-105">
           <NoteCard
