@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PasswordInput from '../../components/Input/PasswordInput'
 import { validateEmail } from '../../utils/helper'
+import axiosIntance from '../../utils/axiosInstance'
 
 const Login = () => {
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
     const [error,setError] = useState({});
-
-    const handleLogin = (e) =>{
+    const navigate = useNavigate();
+    const handleLogin = async (e) =>{
         e.preventDefault();
         setError({});
         const errors={};
@@ -20,6 +21,23 @@ const Login = () => {
             errors.password = "Please enter your password.";
         }
         setError(errors);
+        try {
+            const response = await axiosIntance.post('/login',{
+                email,
+                password
+            });
+            if(response.data && response.data.accessToken)
+            {
+                localStorage.setItem('token',response.data.accessToken);
+                navigate('/dashboard');
+            }
+          } catch (e) {
+            if(e.response && e.response.data && e.response.data.message){
+                setError({message:e.response.data.message});
+            }else{
+                setError({message:"Something went wrong. Please try again later."});
+            }
+          }
     }
   return (
     <>
@@ -39,6 +57,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     />
                     {error.password && <p className='text-danger text-xs pb-1'>{error.password}</p>}
+                    {error.message && <p className='text-danger text-xs pb-1'>{error.message}</p>}
                     <button type='submit' className='btn-primary'>
                         Login
                     </button>
