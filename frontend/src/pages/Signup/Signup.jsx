@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PasswordInput from '../../components/Input/PasswordInput'
 import { validateEmail } from '../../utils/helper'
+import axiosIntance from '../../utils/axiosInstance'
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState({});
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -28,14 +30,22 @@ const Signup = () => {
     //to call signup api
     try {
       const response = await axiosIntance.post('/create-account',{
+          fullName: name,
           email,
           password
       });
+      console.log(response);
+      if(response.data && response.data.error)
+      {
+          setError({message:response.data.message});
+          return;
+      }
       if(response.data && response.data.accessToken)
       {
-          localStorage.setItem('token',response.data.accessToken);
-          navigate('/dashboard');
+        localStorage.setItem('token',response.data.accessToken);
+        navigate('/');
       }
+      
     } catch (e) {
       if(e.response && e.response.data && e.response.data.message){
           setError({message:e.response.data.message});
@@ -78,7 +88,7 @@ const Signup = () => {
             {error.password && (
               <p className="text-danger text-xs pb-1">{error.password}</p>
             )}
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary" >
               Signup
             </button>
 

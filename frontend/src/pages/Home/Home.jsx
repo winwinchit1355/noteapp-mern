@@ -14,6 +14,7 @@ const Home = () => {
     data: null,
   });
   const [userInfo,setUserInfo] = useState(null);
+  const [notes,setNotes] = useState([]);
   const navigate = useNavigate();
   //get user info api
   const getUserInfo = async () => { 
@@ -30,19 +31,19 @@ const Home = () => {
       }
     }
   }
+  //get all notes
   const getNotes = async () => {
     try {
       const response = await axiosIntance.get('/get-notes');
       if(response.data && response.data.notes)
       {
-          console.log(response.data);
+          setNotes(response.data.notes);
       }
     } catch (e) {
-      console.log(e);
       if(e.response && e.response.data && e.response.data.message){
-          
+          setError({message:e.response.data.message});
       }else{
-          
+          setError({message:"Something went wrong. Please try again later."});
       }
     }
   }
