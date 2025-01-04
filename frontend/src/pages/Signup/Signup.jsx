@@ -10,7 +10,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState({});
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError({});
     const errors = {};
@@ -26,6 +26,23 @@ const Signup = () => {
     setError(errors);
 
     //to call signup api
+    try {
+      const response = await axiosIntance.post('/create-account',{
+          email,
+          password
+      });
+      if(response.data && response.data.accessToken)
+      {
+          localStorage.setItem('token',response.data.accessToken);
+          navigate('/dashboard');
+      }
+    } catch (e) {
+      if(e.response && e.response.data && e.response.data.message){
+          setError({message:e.response.data.message});
+      }else{
+          setError({message:"Something went wrong. Please try again later."});
+      }
+    }
   };
   return (
     <>

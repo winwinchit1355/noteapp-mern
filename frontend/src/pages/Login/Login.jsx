@@ -29,7 +29,7 @@ const Login = () => {
             if(response.data && response.data.accessToken)
             {
                 localStorage.setItem('token',response.data.accessToken);
-                navigate('/dashboard');
+                navigate('/');
             }
           } catch (e) {
             if(e.response && e.response.data && e.response.data.message){
