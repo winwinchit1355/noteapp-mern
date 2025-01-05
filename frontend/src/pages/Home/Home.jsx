@@ -114,6 +114,7 @@ const Home = () => {
         onClose={handleOnClose}
         type={openEditModal.type}
         noteData={openEditModal.data}
+        getNotes = {getNotes}
         />
        
       </Modal>
