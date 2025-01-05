@@ -6,12 +6,18 @@ import AddEditNote from "./AddEditNotes";
 import Modal from 'react-modal';
 import { useNavigate } from "react-router-dom";
 import axiosIntance from "../../utils/axiosInstance";
+import Toast from "../../components/ToastMessage/Toast";
 
 const Home = () => {
   const [openEditModal, setOpenEditModal] = useState({
     isShown: false,
     type: "add",
     data: null,
+  });
+  const [showToastMsg,setShowToastMsg] = useState({
+    isShown: false,
+    message: "",
+    type: "add"
   });
   const [userInfo,setUserInfo] = useState(null);
   const [notes,setNotes] = useState([]);
@@ -73,6 +79,41 @@ const Home = () => {
       type: "edit"
     });
   }
+  const handleDelete = async (noteData) =>{
+    try {
+      const response = await axiosIntance.delete('/delete-note/'+noteData?._id);
+      if(response.data && response.data.error)
+        {
+          handleShowToast(response.data.message,"delete");
+          return;
+        }
+        if(response.data && !response.data.error)
+        {
+          handleShowToast("Successfully delete note","delete");
+          getNotes();
+        }
+    } catch (e) {
+        if(e.response && e.response.data && e.response.data.message){
+          handleShowToast(e.response.data.message,"delete");
+        }else{
+          handleShowToast("Something went wrong. Please try again later.","delete");
+        }
+    }
+  }
+  const handleShowToast = (message,type) =>{
+    setShowToastMsg({
+      isShown: true,
+      message,
+      type
+    });
+  }
+ const handleCloseToast = (message,type) =>{
+  setShowToastMsg({
+    isShown: false,
+    message,
+    type
+  });
+ }
   return (
     <>
       <Navbar userInfo={userInfo} />
@@ -86,7 +127,7 @@ const Home = () => {
               tags={note.tags}
               isPinned={note.isPinned}
               onEdit={() => {handleEdit(note)}}
-              onDelete={() => { }}
+              onDelete={() => { handleDelete(note)}}
               onPinNote={() => { }}
             />
           </div>
@@ -123,9 +164,16 @@ const Home = () => {
         type={openEditModal.type}
         noteData={openEditModal.data}
         getNotes = {getNotes}
+        showToastMessage = {handleShowToast}
         />
        
       </Modal>
+      <Toast 
+      isShown = {showToastMsg.isShown}
+      message = {showToastMsg.message}
+      type = {showToastMsg.type}
+      onClose = {handleCloseToast}
+      />
     </>
   )
 }
