@@ -4,9 +4,9 @@ import TagInput from '../../components/Input/TagInput'
 import axiosIntance from "../../utils/axiosInstance";
 
 const AddEditNote = ({noteData,type,onClose,getNotes}) => {
-  const [title,setTitle] = useState('');
-  const [content,setContent] = useState('');
-  const [tags,setTags] = useState([]);
+  const [title,setTitle] = useState(noteData?.title || '');
+  const [content,setContent] = useState(noteData?.content || '');
+  const [tags,setTags] = useState(noteData?.tags || []);
   const [errors,setErrors] = useState([]);
 
   const addNote = async() =>{
@@ -36,7 +36,29 @@ const AddEditNote = ({noteData,type,onClose,getNotes}) => {
   }
 
   const editNote = async() =>{
-
+    try {
+      const response = await axiosIntance.put('/edit-note/'+noteData?._id,{
+        title,
+        content,
+        tags
+      });
+      if(response.data && response.data.error)
+        {
+          setErrors({message:response.data.message});
+          return;
+        }
+        if(response.data && response.data.note)
+        {
+          getNotes();
+          onClose();
+        }
+    } catch (e) {
+        if(e.response && e.response.data && e.response.data.message){
+          setErrors({message:e.response.data.message});
+        }else{
+          setErrors({message:"Something went wrong. Please try again later."});
+        }
+    }
   }
 
   const handleAddNote = (e) =>{
@@ -101,7 +123,7 @@ const AddEditNote = ({noteData,type,onClose,getNotes}) => {
         <TagInput tags={tags} setTags={setTags} />
       </div>
       {errors.message && <p className='text-danger text-xs pb-1'>{errors.message}</p>}
-      <button className='btn-primary font-medium mt-5 p-3' onClick={handleAddNote}>ADD</button>
+      <button className='btn-primary font-medium mt-5 p-3' onClick={handleAddNote}>{type === 'edit'? 'Update' : 'Add'}</button>
     </div>
   )
 }
