@@ -165,6 +165,47 @@ app.get('/get-notes',authenticateToken,async (req,res) =>{
     }
 });
 
+app.get('/search-notes',authenticateToken,async (req,res) =>{
+    const {user} = req.user;
+    const {query} = req.query;
+    if(!query){
+        return res.status(400).json({
+            error:true,
+            message: "Search keyword is required."
+        }); 
+    }
+    try{
+        const notes = await Note
+            .find(
+                {$and:[
+                    {userId:user._id},
+                    {
+                        $or: [
+                          { title:  { $regex: query, $options: "i" } },
+                          { content:  { $regex: query, $options: "i" } },
+                          { tags:  { $elemMatch: { $regex: query, $options: "i" } } },
+                        ],
+                      },
+                ]}
+            )
+            .sort({
+                isPinned:-1,
+            });
+        
+        return res.status(200).json({
+            error:false,
+            notes,
+            message: "Notes fetched successfully"
+        });
+        
+    }catch(err){
+        return res.status(500).json({
+            error:true,
+            message:err.message
+        });
+    }
+});
+
 app.post('/create-note',authenticateToken,async (req,res) =>{
     const {title,content,tags} = req.body;
     const {user} = req.user;

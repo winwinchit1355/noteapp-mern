@@ -9,6 +9,7 @@ import axiosIntance from "../../utils/axiosInstance";
 import Toast from "../../components/ToastMessage/Toast";
 import EmptyCard from "../../components/EmptyCard/EmptyCard";
 import noImageSvg from "../../assets/images/no-image.svg";
+import notFoundSvg from "../../assets/images/not-found.svg";
 
 const Home = () => {
   const [openEditModal, setOpenEditModal] = useState({
@@ -23,6 +24,7 @@ const Home = () => {
   });
   const [userInfo,setUserInfo] = useState(null);
   const [notes,setNotes] = useState([]);
+  const [isSearch,setIsSearch] = useState(false);
   const navigate = useNavigate();
 
   //get user info api
@@ -50,10 +52,30 @@ const Home = () => {
       }
     } catch (e) {
       if(e.response && e.response.data && e.response.data.message){
-          setError({message:e.response.data.message});
+        handleShowToast(e.response.data.message,"delete");
       }else{
-          setError({message:"Something went wrong. Please try again later."});
+        handleShowToast("Something went wrong. Please try again later.","delete");
       }
+    }
+  }
+
+  //search note
+  const searchNotes = async (query) => {
+    try {
+      const response = await axiosIntance.get('/search-notes',{
+        params: { query }
+      });
+      if(response.data && response.data.notes)
+      {
+          setIsSearch(true);
+          setNotes(response.data.notes);
+      }
+    } catch (e) {
+      // if(e.response && e.response.data && e.response.data.message){
+      //     handleShowToast(e.response.data.message,"delete");
+      // }else{
+        handleShowToast("Something went wrong. Please try again later.","delete");
+      // }
     }
   }
 
@@ -139,10 +161,14 @@ const Home = () => {
     type
   });
  }
+ const handleClearSearch = () =>{
+  setIsSearch(false);
+  getNotes();
+ }
   return (
     <>
-      <Navbar userInfo={userInfo} />
-      {notes.length > 0 ? <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
+      <Navbar userInfo={userInfo} searchNotes={searchNotes} handleClearSearch={handleClearSearch} />
+      {notes?.length > 0 ? <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
          {notes?.map((note,index) => (
           <div key={note._id} className="relative bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform transition duration-500 hover:scale-105 ">
             <NoteCard
@@ -164,7 +190,8 @@ const Home = () => {
         </div> */}
       </div>
       : 
-      <EmptyCard imgSrc={noImageSvg} message="No note! Create your thoughts and daily routings by clicking plus button on the right bottom corner!" />
+      <EmptyCard imgSrc={isSearch? notFoundSvg:noImageSvg} message={
+        isSearch?"Content not found!":"No note! Create your thoughts and daily routings by clicking plus button on the right bottom corner!"} />
         }
       <button className="w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-700 absolute right-5 bottom-5" onClick={() => { 
         setOpenEditModal({
