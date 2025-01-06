@@ -7,6 +7,8 @@ import Modal from 'react-modal';
 import { useNavigate } from "react-router-dom";
 import axiosIntance from "../../utils/axiosInstance";
 import Toast from "../../components/ToastMessage/Toast";
+import EmptyCard from "../../components/EmptyCard/EmptyCard";
+import noImageSvg from "../../assets/images/no-image.svg";
 
 const Home = () => {
   const [openEditModal, setOpenEditModal] = useState({
@@ -100,6 +102,29 @@ const Home = () => {
         }
     }
   }
+  const handlePinUpdate = async (noteData) =>{
+    try {
+      const response = await axiosIntance.put('/update-note-pin/'+noteData?._id,{
+        isPinned: !noteData.isPinned
+      });
+      if(response.data && response.data.error)
+        {
+          handleShowToast(response.data.message,"update");
+          return;
+        }
+        if(response.data && !response.data.error)
+        {
+          handleShowToast(`Successfully ${noteData.isPinned? "unpin":"pin"} note`,"update");
+          getNotes();
+        }
+    } catch (e) {
+        if(e.response && e.response.data && e.response.data.message){
+          handleShowToast(e.response.data.message,"update");
+        }else{
+          handleShowToast("Something went wrong. Please try again later.","update");
+        }
+    }
+  }
   const handleShowToast = (message,type) =>{
     setShowToastMsg({
       isShown: true,
@@ -117,9 +142,9 @@ const Home = () => {
   return (
     <>
       <Navbar userInfo={userInfo} />
-      <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
-        {notes?.map((note,index) => (
-          <div key={note._id} className="relative bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform transition duration-500 hover:scale-105">
+      {notes.length > 0 ? <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
+         {notes?.map((note,index) => (
+          <div key={note._id} className="relative bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform transition duration-500 hover:scale-105 ">
             <NoteCard
               title={note.title}
               date={note.createdOn}
@@ -127,17 +152,20 @@ const Home = () => {
               tags={note.tags}
               isPinned={note.isPinned}
               onEdit={() => {handleEdit(note)}}
-              onDelete={() => { handleDelete(note)}}
-              onPinNote={() => { }}
+              onDelete={() => { handleDelete(note) }}
+              onPinNote={() => { handlePinUpdate(note) }}
             />
           </div>
-        ))}
+        )) }
         {/* <div className="flex items-center justify-center relative bg-slate-200 hover:cursor-pointer border rounded-lg shadow-md  transform transition duration-500 hover:scale-105">
           <button className="" onClick={() => { }}>
             <IoMdAdd size={22} />
           </button>
         </div> */}
       </div>
+      : 
+      <EmptyCard imgSrc={noImageSvg} message="No note! Create your thoughts and daily routings by clicking plus button on the right bottom corner!" />
+        }
       <button className="w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-700 absolute right-5 bottom-5" onClick={() => { 
         setOpenEditModal({
           isShown: true,
