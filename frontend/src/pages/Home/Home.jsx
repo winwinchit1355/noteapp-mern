@@ -170,7 +170,7 @@ const Home = () => {
       <Navbar userInfo={userInfo} searchNotes={searchNotes} handleClearSearch={handleClearSearch} />
       {notes?.length > 0 ? <div className='grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5'>
          {notes?.map((note,index) => (
-          <div key={note._id} className="relative bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform transition duration-500 hover:scale-105 ">
+          <div key={note._id} className="relative bg-white rounded-lg shadow-md transform transition duration-500 hover:scale-105 ">
             <NoteCard
               title={note.title}
               date={note.createdOn}

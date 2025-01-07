@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const NoteCard = ({title,date,content,tags,isPinned,onEdit,onDelete,onPinNote}) => {
   return (
-    <div className="flex flex-col justify-between h-full p-4 bg-white hover:shadow-xl transition-all ease-in-out">
+    <div className="flex flex-col justify-between h-full p-4 bg-white border rounded-lg hover:shadow-xl transition-all ease-in-out">
         <div className="flex items-center justify-between">
             <div>
                 <h6 className="text-sm font-medium">{title}</h6>
